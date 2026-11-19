@@ -320,7 +320,7 @@ def leer_shopify(tienda: dict, cfg: dict, refs, dolar: float) -> list[Oferta]:
                     condicion=cond, ref_mas_barata=mas_barata(imps, foil, cond) * dolar,
                 ))
         pagina += 1
-        time.sleep(1.5)  # amable con la tienda
+        time.sleep(0.8)  # amable con la tienda
     log(f"  ✓ {tienda['nombre']}: {vistos} singles revisados")
     CONTEO["singles"] += vistos
     CONTEO["tiendas"] += 1
@@ -409,7 +409,7 @@ def leer_woocommerce(tienda: dict, cfg: dict, refs, dolar: float) -> list[Oferta
                 referencia=usd * dolar, edicion=ed, foil=foil, idioma=detectar_idioma(texto),
                 url=p["permalink"], clave=f"{base}|{p['id']}", edicion_confirmada=ok,
                 condicion=cond, ref_mas_barata=mas_barata(imps, foil, cond) * dolar))
-        time.sleep(1.5)
+        time.sleep(0.8)
     log(f"  ✓ {tienda['nombre']}: {vistos} singles revisados")
     CONTEO["singles"] += vistos
     CONTEO["tiendas"] += 1
