@@ -1,0 +1,81 @@
+name: Buscar ofertas MTG
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"   # cada 3 horas (hora UTC)
+  workflow_dispatch:          # botón "Run workflow" para correrlo a mano
+    inputs:
+      prueba:
+        description: "Solo enviar mensaje de prueba"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write             # para guardar qué cartas ya se avisaron
+  pages: write                # para publicar la página de ofertas
+  id-token: write
+
+concurrency:
+  group: ofertas
+  cancel-in-progress: false
+
+jobs:
+  buscar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Cache lista de precios Card Kingdom (1 descarga al día)
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: ck-${{ github.run_id }}
+          restore-keys: ck-
+
+      - name: Buscar ofertas
+        env:
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: |
+          if [ "${{ inputs.prueba }}" = "true" ]; then
+            python buscar_ofertas.py --probar-avisos
+          else
+            python buscar_ofertas.py
+          fi
+
+      - name: Guardar cartas avisadas
+        if: ${{ inputs.prueba != true }}
+        run: |
+          git config user.name "mtg-ofertas-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state/avisadas.json || true
+          git diff --cached --quiet || (git commit -m "Actualizar ofertas avisadas" && git push)
+
+      - name: Preparar página de ofertas
+        if: ${{ inputs.prueba != true }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  publicar:
+    # Publica docs/index.html en https://TU-USUARIO.github.io/mtg-ofertas/
+    needs: buscar
+    if: ${{ inputs.prueba != true }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
