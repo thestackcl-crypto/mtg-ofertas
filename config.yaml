@@ -1,0 +1,105 @@
+# ===============================================================
+#  Configuración del buscador de ofertas MTG
+# ===============================================================
+
+# Avisar cuando el precio de la tienda esté al menos este % bajo el precio de
+# Card Kingdom para esa edición y condición (pasado a pesos con dolar_ck)
+descuento_minimo: 0.40          # 0.40 = 40% más barato
+
+# Ignorar cartas cuya referencia sea menor a esto (evita alertas de cartas de $300)
+referencia_minima_clp: 5000
+
+# "Dólar CK": cuántos pesos vale cada dólar del precio de Card Kingdom.
+# Las tiendas chilenas usan entre 700 y 850. Con 800 y descuento_minimo 0.40,
+# te avisa cuando una carta cuesta $480 o menos por cada dólar de CK.
+#   "auto" -> usa el dólar observado del día (mindicador.cl)
+dolar_ck: 800
+
+# true  -> solo avisa si la carta es barata incluso contra su edición MÁS barata
+#          (menos alertas, casi sin falsas alarmas por promos o ediciones caras)
+# false -> avisa también si es barata solo para la edición publicada (marcada ⚠️)
+solo_ofertas_seguras: false
+
+# Volver a avisar de una carta ya avisada solo si bajó al menos este % más
+rebaja_para_reavisar: 0.05
+
+# Máximo de ofertas por mensaje de WhatsApp (los correos llevan todas)
+max_por_whatsapp: 10
+
+# Palabras que descartan un producto (sobres, mazos, proxies, etc.)
+excluir_si_contiene:
+  - booster
+  - sobre
+  - bundle
+  - mazo
+  - deck
+  - display
+  - caja
+  - proxy
+  - token
+  - lote
+  - playset
+  - sleeve
+  - funda
+  - "art card"
+
+# ---------------------------------------------------------------
+#  Tiendas a revisar
+#  plataforma: shopify   (lee /products.json, la forma pública de Shopify)
+#  filtro: el producto debe tener alguna de estas palabras en su tipo,
+#          tags o título para considerarse un single de Magic.
+#  El sistema revisa el robots.txt de cada tienda y la SALTA si no
+#  permite acceso automático.
+# ---------------------------------------------------------------
+tiendas:
+  # ---- Shopify ----
+  - nombre: Paytowin
+    url: https://paytowin.cl
+    plataforma: shopify
+    filtro: ["mtg single"]
+  - nombre: Game of Magic Singles
+    url: https://gameofmagicsingles.cl
+    plataforma: shopify
+    filtro: ["mtg single"]
+  - nombre: Collector Center
+    url: https://singles.collectorcenter.cl
+    plataforma: shopify
+    filtro: ["singles:magic", "singles magic"]
+  - nombre: Singles Winterland
+    url: https://singleswinterland.cl
+    plataforma: shopify
+    filtro: ["magic"]
+  - nombre: Card Souls
+    url: https://cardsouls.cl
+    plataforma: shopify
+    filtro: ["magic"]
+  - nombre: Piedra Bruja
+    url: https://piedrabruja.cl
+    plataforma: shopify
+    filtro: [single]
+  - nombre: Oasis Games
+    url: https://oasisgames.cl
+    plataforma: shopify
+    filtro: [single]
+
+  # ---- WooCommerce (filtro = palabras en el nombre de la categoría) ----
+  - nombre: Rhystic Bazaar
+    url: https://rhysticbazaar.cl
+    plataforma: woocommerce
+    filtro: [single]
+  - nombre: Card Nexus
+    url: https://cardnexus.cl
+    plataforma: woocommerce
+    filtro: [single]
+  - nombre: OnPlay
+    url: https://onplay.cl
+    plataforma: woocommerce
+    categorias: [386]        # categoría madre de singles MTG (incluye sus ediciones)
+
+
+# Tiendas revisadas que NO se pueden leer automáticamente (nov 2026):
+#   Sin singles de Magic en su catálogo público: Cartonazo, Hunter Card TCG
+#   Bloquean por robots.txt: Guildreams, Third Impact, Reino Eldrazi
+#   Jumpseller / sitio propio sin catálogo público: Chronomagic, Game Quest,
+#   Cat Lotus, Cartas La Fortaleza, Blood Moon Games, Dominio Arcano,
+#   Torneos TCG, Cartas Magic Sur
